@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="mainStyle.css">
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+        <script>
+            function loadData(){
+                var show;
+                fetch('http://localhost:8080/AssignmentRESTService/resources/user/all')
+                        .then(function (response) {
+                            return response.json();
+                        }).then(function (data) {
+                            for (var i = 0; i < data.length; i++) {
+                                show=data[i];
+                                var commentDiv = document.createElement('tr');
+                                var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(show.thumbnail)));
+
+                                commentDiv.innerHTML = '<td>' + show.id + '</td><td>' + show.title + '</td><td>' + show.description + '</td><td>' + show.cast + '</td>\n\
+                            <td>' + show.category + '</td><td>' + show.type + '</td><td><image src=data:image/jpg;base64,'+ base64String+' alt="No Image" width="50" height="50"></td>';
+                                document.getElementById('commentsContainer').appendChild(commentDiv);
+
+                            }
+                        });
+                }
+                $(document).ready(function () {
+                    $("#showList").on("click", "tr", function(e){
+                        var value = $(this).find('td:nth-child(1)').text();
+                        fetch('http://localhost:8080/AssignmentRESTService/resources/user/all/' + value)
+                                .then(function (response) {
+                                    return response.json();
+                                }).then(function (data) {
+                            document.getElementById('dataSelected').innerHTML="";
+                            var commentDiv = document.createElement('div');
+                            var base64String = btoa(String.fromCharCode.apply(null, new Uint8Array(data.thumbnail)));
+                            commentDiv.innerHTML = '<image src=data:image/jpg;base64,'+ base64String+' alt="No Image" width="250" height="350">\n\
+                                    <div>Title:         '+data.title+'</div>\n\
+                                    <div>Description:   '+data.description+'</div>\n\
+                                    <div>Type:          '+data.type+'</div>\n\
+                                    <div>Category:      '+data.category+'</div>\n\
+                                    <div>Director:      '+data.director+'</div>\n\
+                                    <div>Rating:        '+data.rating+'</div>'
+                            document.getElementById('dataSelected').appendChild(commentDiv);
+                        });
+                    });
+                });
+        </script>
+    </head>
+    <body onload="loadData();">
+        <h1 style="text-align: center;">List</h1>
+        <form action="/search.jsp" method="POST" enctype="multipart/form-data">
+            <table id="showList" style="width: 75%; margin: auto;" class="table redTable">
+                <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Title</td>
+                    <td>Description</td>
+                    <td>Cast</td>
+                    <td>Category</td>
+                    <td>Type</td>
+                    <td>Thumbnail</td>
+                </tr>
+                </thead>
+                <tbody id="commentsContainer">
+                </tbody>           
+            </table><br><br>
+            <div style="align-content: center;margin: auto;text-align: center;display: block;" id="dataSelected">
+            </div>
+</html>
